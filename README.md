@@ -1,80 +1,57 @@
-# File Uploader
+# Geolocation and Mapping Toolkit
 
-File Uploader is a simple Node.js package that allows you to upload files to a specified directory and delete files from that directory.
+This is a JavaScript package that provides basic geolocation and mapping functionalities using the Google Maps Geocoding API.
 
 ## Installation
 
-You can install File Uploader via npm:
+You can install this package via npm:
 
 ```bash
-npm install file-uploader
+npm install geolocation-mapping-toolkit
 ```
 
 ## Usage
 
+First, instantiate an instance of the `GeolocationToolkit` class with your Google Maps API key:
+
 ```javascript
-const FileUploader = require('file-uploader');
+const GeolocationToolkit = require('geolocation-mapping-toolkit');
 
-// Initialize FileUploader with upload directory
-const uploader = new FileUploader('./uploads');
+const apiKey = 'YOUR_GOOGLE_MAPS_API_KEY';
+const geolocationToolkit = new GeolocationToolkit(apiKey);
+```
 
-// Example usage: Upload a file
-const fileData = {
-  data: <Buffer data>, // Buffer containing file data
-  filename: 'example.jpg', // File name
-  mimetype: 'image/jpeg' // File MIME type
-};
+### Geocoding
 
-uploader.uploadFile(fileData)
-  .then((uploadedFile) => {
-    console.log('File uploaded successfully:', uploadedFile);
+Use the `geocode` method to convert an address to geographic coordinates (latitude and longitude):
+
+```javascript
+const address = '1600 Amphitheatre Parkway, Mountain View, CA';
+geolocationToolkit.geocode(address)
+  .then(results => {
+    console.log('Geocoding results:', results);
   })
-  .catch((error) => {
-    console.error('Error uploading file:', error);
-  });
-
-// Example usage: Delete a file
-const filePath = './uploads/example.jpg';
-uploader.deleteFile(filePath)
-  .then((result) => {
-    if (result) {
-      console.log('File deleted successfully');
-    } else {
-      console.log('File not found');
-    }
-  })
-  .catch((error) => {
-    console.error('Error deleting file:', error);
+  .catch(error => {
+    console.error('Geocoding failed:', error.message);
   });
 ```
 
-## API
+### Reverse Geocoding
 
-### `new FileUploader(uploadDir: string): FileUploader`
+Use the `reverseGeocode` method to convert coordinates to a human-readable address:
 
-Creates a new instance of FileUploader with the specified upload directory.
-
-- `uploadDir`: The directory where uploaded files will be stored.
-
-### `uploadFile(fileData: Object): Promise<Object>`
-
-Uploads a file to the specified directory.
-
-- `fileData`: An object containing the file data with the following properties:
-  - `data`: Buffer containing the file data.
-  - `filename`: Name of the file.
-  - `mimetype`: MIME type of the file.
-
-Returns a Promise that resolves to an object containing information about the uploaded file, including the generated file ID, filename, MIME type, and file path.
-
-### `deleteFile(filePath: string): Promise<boolean>`
-
-Deletes a file from the specified directory.
-
-- `filePath`: The path to the file to be deleted.
-
-Returns a Promise that resolves to `true` if the file was successfully deleted, or `false` if the file was not found.
+```javascript
+const lat = 37.4224082;
+const lng = -122.0856086;
+geolocationToolkit.reverseGeocode(lat, lng)
+  .then(results => {
+    console.log('Reverse geocoding results:', results);
+  })
+  .catch(error => {
+    console.error('Reverse geocoding failed:', error.message);
+  });
+```
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This package is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.

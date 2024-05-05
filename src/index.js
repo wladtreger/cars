@@ -1,50 +1,41 @@
-// fileUploader.js
+const axios = require('axios');
 
-const fs = require('fs');
-const path = require('path');
-const { v4: uuidv4 } = require('uuid');
+class GeolocationToolkit {
+  constructor(apiKey) {
+    if (!apiKey) {
+      throw new Error('API key is required for GeolocationToolkit');
+    }
+    this.apiKey = apiKey;
+    this.baseUrl = 'https://maps.googleapis.com/maps/api';
+  }
 
-class FileUploader {
-  constructor(uploadDir) {
-    this.uploadDir = uploadDir;
-    // Create upload directory if it doesn't exist
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
+  async geocode(address) {
+    try {
+      const response = await axios.get(`${this.baseUrl}/geocode/json`, {
+        params: {
+          address: address,
+          key: this.apiKey,
+        },
+      });
+      return response.data.results;
+    } catch (error) {
+      throw new Error(`Geocoding failed: ${error.message}`);
     }
   }
 
-  async uploadFile(fileData) {
+  async reverseGeocode(lat, lng) {
     try {
-      const { data, filename, mimetype } = fileData;
-      const fileId = uuidv4();
-      const fileExt = path.extname(filename);
-      const filePath = path.join(this.uploadDir, `${fileId}${fileExt}`);
-      // Write file to disk
-      await fs.promises.writeFile(filePath, data);
-      return {
-        fileId,
-        filename,
-        mimetype,
-        filePath,
-      };
+      const response = await axios.get(`${this.baseUrl}/geocode/json`, {
+        params: {
+          latlng: `${lat},${lng}`,
+          key: this.apiKey,
+        },
+      });
+      return response.data.results;
     } catch (error) {
-      throw new Error(`Failed to upload file: ${error.message}`);
-    }
-  }
-
-  async deleteFile(filePath) {
-    try {
-      // Check if file exists
-      if (fs.existsSync(filePath)) {
-        // Delete file
-        await fs.promises.unlink(filePath);
-        return true;
-      }
-      return false;
-    } catch (error) {
-      throw new Error(`Failed to delete file: ${error.message}`);
+      throw new Error(`Reverse geocoding failed: ${error.message}`);
     }
   }
 }
 
-module.exports = FileUploader;
+module.exports = GeolocationToolkit;
